@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login Page with Show Password & CAPTCHA</title>
+  <style>
+    body {
+      background: #ffe0ef;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    .login-container {
+      background: #fff0fa;
+      padding: 40px 30px;
+      border-radius: 16px;
+      box-shadow: 0 0 20px #ffb6d5;
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .login-container h2 {
+      margin: 0 0 20px;
+      color: #e75480;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+    .login-container input[type="text"],
+    .login-container input[type="password"],
+    .login-container input[type="number"] {
+      width: 100%;
+      padding: 12px 8px;
+      margin: 8px 0;
+      border: 1px solid #facbe7;
+      border-radius: 8px;
+      background: #ffe1ed;
+      color: #d43c67;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    .login-container button {
+      width: 100%;
+      background: #e75480;
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 12px;
+      transition: background 0.3s;
+    }
+    .login-container button:hover {
+      background: #d43c67;
+    }
+    .captcha-question {
+      font-weight: bold;
+      color: #d43c67;
+      margin: 8px 0 4px;
+      font-size: 18px;
+      user-select: none;
+      letter-spacing: 4px;
+      background: #fad4e3;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-family: 'Courier New', Courier, monospace;
+      text-align: center;
+      user-select: none;
+      letter-spacing: 6px;
+    }
+    .error-message {
+      color: #d43c67;
+      font-size: 14px;
+      margin: 6px 0 0;
+    }
+    .show-password {
+      color: #d43c67;
+      font-size: 14px;
+      align-self: flex-start;
+      margin-top: 4px;
+      cursor: pointer;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+  <form class="login-container" id="loginForm">
+    <h2>Login</h2>
+    <input type="text" placeholder="Username" required />
+    <input type="password" placeholder="Password" id="passwordInput" required />
+    
+    <label class="show-password">
+      <input type="checkbox" id="showPasswordCheckbox" /> Show Password
+    </label>
+    
+    <div class="captcha-question" id="captchaQuestion"></div>
+    <input type="text" placeholder="Enter CAPTCHA" id="captchaInput" maxlength="6" autocomplete="off" required />
+    
+    <div class="error-message" id="captchaError"></div>
+    
+    <button type="submit">Sign In</button>
+  </form>
+
+  <script>
+    const captchaQuestionEl = document.getElementById('captchaQuestion');
+    const captchaInputEl = document.getElementById('captchaInput');
+    const captchaErrorEl = document.getElementById('captchaError');
+    const form = document.getElementById('loginForm');
+    const passwordInput = document.getElementById('passwordInput');
+    const showPasswordCheckbox = document.getElementById('showPasswordCheckbox');
+
+    // Generate 6-character alphanumeric captcha
+    function generateCaptcha() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let captcha = '';
+      for (let i = 0; i < 6; i++) {
+        captcha += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return captcha;
+    }
+
+    let captcha = generateCaptcha();
+    captchaQuestionEl.textContent = captcha;
+
+    // Show/hide password toggle
+    showPasswordCheckbox.addEventListener('change', function () {
+      passwordInput.type = this.checked ? 'text' : 'password';
+    });
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      captchaErrorEl.textContent = '';
+
+      const userAnswer = captchaInputEl.value.trim();
+      if (userAnswer !== captcha) {
+        captchaErrorEl.textContent = 'Incorrect CAPTCHA. Please try again.';
+        captchaInputEl.value = '';
+        captcha = generateCaptcha();
+        captchaQuestionEl.textContent = captcha;
+        return;
+      }
+
+      // CAPTCHA correct - proceed with form submission logic
+      alert('Login successful!');
+      form.reset();
+      captcha = generateCaptcha();
+      captchaQuestionEl.textContent = captcha;
+    });
+  </script>
+</body>
+</html>
