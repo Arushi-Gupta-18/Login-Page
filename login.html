@@ -31,7 +31,8 @@
     }
     .login-container input[type="text"],
     .login-container input[type="password"],
-    .login-container input[type="number"] {
+    .login-container input[type="number"],
+    .login-container input[type="email"] {
       width: 100%;
       padding: 12px 8px;
       margin: 8px 0;
@@ -63,8 +64,6 @@
       color: #d43c67;
       margin: 8px 0 4px;
       font-size: 18px;
-      user-select: none;
-      letter-spacing: 4px;
       background: #fad4e3;
       padding: 8px 12px;
       border-radius: 8px;
@@ -86,6 +85,16 @@
       cursor: pointer;
       user-select: none;
     }
+    /* NEW: Password strength text */
+    .password-strength {
+      font-size: 14px;
+      margin-top: 4px;
+      align-self: flex-start;
+      font-weight: bold;
+    }
+    .weak { color: #ff4d6d; }
+    .medium { color: #e75480; }
+    .strong { color: #4caf50; }
   </style>
 </head>
 <body>
@@ -93,6 +102,9 @@
     <h2>Login</h2>
     <input type="text" placeholder="Username" required />
     <input type="password" placeholder="Password" id="passwordInput" required />
+    
+    <!-- NEW password strength indicator -->
+    <div class="password-strength" id="passwordStrength"></div>
     
     <label class="show-password">
       <input type="checkbox" id="showPasswordCheckbox" /> Show Password
@@ -113,6 +125,7 @@
     const form = document.getElementById('loginForm');
     const passwordInput = document.getElementById('passwordInput');
     const showPasswordCheckbox = document.getElementById('showPasswordCheckbox');
+    const passwordStrengthEl = document.getElementById('passwordStrength');
 
     // Generate 6-character alphanumeric captcha
     function generateCaptcha() {
@@ -132,6 +145,42 @@
       passwordInput.type = this.checked ? 'text' : 'password';
     });
 
+    // Password strength checker
+    passwordInput.addEventListener('input', function () {
+      const value = passwordInput.value;
+      let strength = '';
+      let strengthClass = '';
+
+      if (value.length === 0) {
+        strength = '';
+      } else {
+        let hasLower = /[a-z]/.test(value);
+        let hasUpper = /[A-Z]/.test(value);
+        let hasNumber = /\d/.test(value);
+        let hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(value);
+
+        let score = [hasLower, hasUpper, hasNumber, hasSpecial].filter(Boolean).length;
+
+        if (value.length < 6 || score < 2) {
+          strength = 'Weak';
+          strengthClass = 'weak';
+        } else if (value.length >= 6 && score === 2) {
+          strength = 'Medium';
+          strengthClass = 'medium';
+        } else if (value.length >= 8 && score >= 3) {
+          strength = 'Strong';
+          strengthClass = 'strong';
+        } else {
+          strength = 'Medium';
+          strengthClass = 'medium';
+        }
+      }
+
+      passwordStrengthEl.textContent = strength;
+      passwordStrengthEl.className = 'password-strength ' + strengthClass;
+    });
+
+    // CAPTCHA validation
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       captchaErrorEl.textContent = '';
@@ -145,11 +194,11 @@
         return;
       }
 
-      // CAPTCHA correct - proceed with form submission logic
       alert('Login successful!');
       form.reset();
       captcha = generateCaptcha();
       captchaQuestionEl.textContent = captcha;
+      passwordStrengthEl.textContent = '';
     });
   </script>
 </body>
